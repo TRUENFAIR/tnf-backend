@@ -14,7 +14,7 @@ export const swaggerSetupOptions = {
     persistAuthorization: true
   },
   customSiteTitle: "Tseek Apis",
-  customfavIcon: "/static/favicon.ico",
+  customfavIcon: "/static/favicon.png",
   customCssUrl: "/static/swagger.css",
   useGlobalPrefix: true
 };
