@@ -1,0 +1,364 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model NotificationTemplate {
+  id              String    @id(map: "notificationtemplate_pkey") @default(uuid())
+  templatename    String?
+  contenttype     String?
+  templatedata    String?
+  language        String
+  tenant          String?
+  createdtenant   String?
+  updatedtenant   String?
+  createduser     String?
+  updateduser     String?
+  isactive        Boolean   @default(false)
+  createddatetime DateTime? @db.Timestamp(6)
+  updateddatetime DateTime? @db.Timestamp(6)
+  createdchannel  String?
+  updatedchannel  String?
+  notes           String?
+  iconpic         String?
+  previousid      String
+}
+
+model RefClass {
+  id                 String     @id(map: "refclass_pkey") @default(uuid())
+  name               String
+  code               String     @unique(map: "indx_unq_refclass_code")
+  createdtenant      String
+  updatedtenant      String?
+  createduser        String
+  updateduser        String?
+  isactive           Boolean    @default(false)
+  createddatetime    DateTime   @db.Timestamp(6)
+  updateddatetime    DateTime?  @db.Timestamp(6)
+  createdchannel     String?
+  updatedchannel     String?
+  notes              String?
+  iconpic            String?
+  previousid         String?
+  refdatas_refclass_ RefDatum[] @relation(name: "refdatas_refclass_")
+}
+
+model RefClassHierarchy {
+  id             String  @id(map: "refclasshierarchy_pkey") @default(uuid())
+  refclass       String
+  parentrefclass String
+  isactive       Boolean @default(false)
+  previousid     String
+}
+
+model RefDataHierarchy {
+  id            String  @id(map: "refdatahierarchy_pkey") @default(uuid())
+  refdata       String
+  parentrefdata String
+  isactive      Boolean @default(false)
+  previousid    String
+}
+
+model RefDatum {
+  id              String    @id(map: "refdata_pkey") @default(uuid())
+  refclass        String
+  refdatacode     String?   @unique(map: "indx_unq_refdata_refdatacode")
+  order           String?
+  description     String
+  createdtenant   String
+  updatedtenant   String?
+  createduser     String
+  updateduser     String?
+  isactive        Boolean   @default(false)
+  createddatetime DateTime? @db.Timestamp(6)
+  updateddatetime DateTime? @db.Timestamp(6)
+  createdchannel  String?
+  updatedchannel  String?
+  notes           String?
+  iconpic         String?
+  previousid      String?
+
+  refclass_      RefClass @relation(name: "refdatas_refclass_", fields: [refclass], references: [id])
+  users_usertype User[]   @relation(name: "users_usertype_")
+}
+
+model Role {
+  id              String    @id(map: "role_pkey") @default(uuid())
+  tenant          String?
+  name            String?
+  code            String?
+  createdtenant   String?
+  updatedtenant   String?
+  createduser     String?
+  updateduser     String?
+  isactive        Boolean?  @default(false)
+  createddatetime DateTime? @db.Timestamp(6)
+  updateddatetime DateTime? @db.Timestamp(6)
+  notes           String?
+  iconpic         String?
+  previousid      String?
+
+  userrolemaps_role_ UserRoleMap[] @relation(name: "userrolemaps_role_")
+}
+
+model Tenant {
+  id              String    @id(map: "tenant_pkey") @default(uuid())
+  name            String?
+  loginname       String?   @unique(map: "indx_unq_tenant_loginname")
+  iconpic         String?
+  userlimit       Int?
+  description     String?
+  createdtenant   String?
+  updatedtenant   String?
+  createduser     String?
+  updateduser     String?
+  isactive        Boolean   @default(false)
+  createddatetime DateTime  @db.Timestamp(6)
+  updateddatetime DateTime? @db.Timestamp(6)
+  createdchannel  String?
+  updatedchannel  String?
+  notes           String?
+  previousid      String?
+  users_tenant_   User[]    @relation(name: "users_tenant_")
+}
+
+model TenantAddress {
+  id                String    @id(map: "tenantaddress_pkey") @default(uuid())
+  tenant            String
+  addressline1      String?
+  addressline2      String?
+  city              String
+  district          String?
+  state             String?
+  country           String?
+  pincode           String?
+  isverified        Boolean?  @default(false)
+  verifiedby        String?
+  verifieddatetime  DateTime? @db.Timestamp(6)
+  tenantaddresstype String?
+  isprimary         Boolean?  @default(false)
+  createdtenant     String?
+  updatedtenant     String?
+  createduser       String?
+  updateduser       String?
+  isactive          Boolean   @default(false)
+  createddatetime   DateTime  @db.Timestamp(6)
+  updateddatetime   DateTime? @db.Timestamp(6)
+  notes             String?
+  iconpic           String?
+  previousid        String?
+}
+
+model TenantContact {
+  id                String    @id(map: "tenantcontact_pkey") @default(uuid())
+  tenant            String
+  tenantcontacttype String
+  value             String
+  isverified        Boolean?  @default(false)
+  verifiedby        String?
+  verifieddatetime  DateTime? @db.Timestamp(6)
+  isprimarycontact  Boolean?  @default(false)
+  name              String?
+  createdtenant     String
+  updatedtenant     String?
+  createduser       String
+  updateduser       String?
+  isactive          Boolean   @default(false)
+  createddatetime   DateTime  @db.Timestamp(6)
+  updateddatetime   DateTime? @db.Timestamp(6)
+  notes             String?
+  iconpic           String?
+  previousid        String?
+}
+
+model TenantHierarchy {
+  id              String   @id(map: "tenanthierarchy_pkey") @default(uuid())
+  tenant          String
+  parenttenant    String
+  businessowner   String?
+  isactive        Boolean  @default(false)
+  createddatetime DateTime @db.Timestamp(6)
+  previousid      String?
+}
+
+model Topic {
+  id              String    @id(map: "survey_pkey") @default(uuid())
+  name            String
+  topictype       String?
+  language        String?
+  startdate       DateTime? @db.Timestamp(6)
+  enddate         DateTime? @db.Timestamp(6)
+  tenant          String
+  notes           String?
+  createdtenant   String
+  updatedtenant   String?
+  createduser     String
+  updateduser     String?
+  isactive        Boolean   @default(false)
+  createddatetime DateTime  @db.Timestamp(6)
+  updateddatetime DateTime? @db.Timestamp(6)
+  previousid      String?
+}
+
+model TopicComments {
+  id              String    @id(map: "surveyresponse_pkey") @default(uuid())
+  topic           String
+  response        String?
+  notes           String?
+  createdtenant   String?
+  updatedtenant   String?
+  createduser     String?
+  updateduser     String?
+  isactive        Boolean   @default(false)
+  createddatetime DateTime  @db.Timestamp(6)
+  updateddatetime DateTime? @db.Timestamp(6)
+  createdchannel  String?
+  updatedchannel  String?
+  attachment      String?
+  previousid      String?
+}
+
+model TopicInstance {
+  id              String    @id(map: "surveysection_pkey") @default(uuid())
+  survey          String
+  createdtenant   String
+  updatedtenant   String?
+  createduser     String
+  updateduser     String?
+  isactive        Boolean   @default(false)
+  createddatetime DateTime  @db.Timestamp(6)
+  updateddatetime DateTime? @db.Timestamp(6)
+  createdchannel  String?
+  updatedchannel  String?
+  previousid      String
+}
+
+model TopicUsers {
+  id              String    @id(map: "surveyuserl_pkey") @default(uuid())
+  topic           String
+  userid          String
+  notes           String?
+  createdtenant   String?
+  updatedtenant   String?
+  createduser     String?
+  updateduser     String?
+  isactive        Boolean   @default(false)
+  createddatetime DateTime  @db.Timestamp(6)
+  updateddatetime DateTime? @db.Timestamp(6)
+  previousid      String
+}
+
+model User {
+  id              String    @id(map: "user_pkey") @default(uuid())
+  tenant          String
+  login           String    @unique(map: "uq_login")
+  password        String
+  usertype        String
+  createdtenant   String
+  updatedtenant   String?
+  createduser     String
+  updateduser     String?
+  isactive        Boolean   @default(false)
+  createddatetime DateTime? @db.Timestamp(6)
+  updateddatetime DateTime? @db.Timestamp(6)
+  notes           String?
+  iconpic         String?
+  previousid      String?
+
+  usertype_          RefDatum      @relation(name: "users_usertype_", fields: [usertype], references: [id])
+  tenant_            Tenant        @relation(name: "users_tenant_", fields: [tenant], references: [id])
+  usercontacts_user_ UserContact[] @relation(name: "usercontacts_user_")
+  userprofiles_user_ UserProfile?  @relation(name: "userprofiles_user_")
+  userrolemaps_user_ UserRoleMap?  @relation(name: "userrolemaps_user_")
+}
+
+model UserContact {
+  id               String    @id(map: "usercontact_pkey") @default(uuid())
+  user             String
+  usercontacttype  String
+  value            String
+  isverified       Boolean?  @default(false)
+  verifiedby       String?
+  verifieddatetime DateTime? @db.Timestamp(6)
+  isprimarycontact Boolean?  @default(false)
+  createdtenant    String
+  updatedtenant    String?
+  createduser      String
+  updateduser      String?
+  isactive         Boolean   @default(false)
+  createddatetime  DateTime? @db.Timestamp(6)
+  updateddatetime  DateTime? @db.Timestamp(6)
+  notes            String?
+  iconpic          String?
+  previousid       String?
+
+  user_ User @relation(name: "usercontacts_user_", fields: [user], references: [id])
+}
+
+model UserProfile {
+  id                String    @id(map: "userprofile_pkey") @default(uuid())
+  user              String    @unique()
+  firstname         String?
+  middlename        String?
+  lastname          String?
+  age               Int?
+  gratuity          Decimal?  @db.Decimal(10, 2)
+  providentfund     Decimal?  @db.Decimal(10, 2)
+  incometax         Decimal?  @db.Decimal(10, 2)
+  ageasondate       Int?
+  gender            String?
+  source            String?
+  bloodgroup        String?
+  dateofbirth       DateTime? @db.Date
+  maritialstatus    String?
+  salutation        String?
+  caste             String?
+  noofchildren      String?
+  disabilitystatus  String?
+  disabilitydetails String?
+  lifestatus        String?
+  shoelengthinmm    Float?
+  shoewidthinmm     Float?
+  religion          String?
+  avgmonthlyincome  Int?
+  occupation        String?
+  category          String?
+  mothertongue      String?
+  createdtenant     String?
+  updatedtenant     String?
+  createduser       String?
+  updateduser       String?
+  isactive          Boolean   @default(false)
+  createddatetime   DateTime? @db.Timestamp(6)
+  updateddatetime   DateTime? @db.Timestamp(6)
+  createdchannel    String?
+  updatedchannel    String?
+  notes             String?
+  iconpic           String?
+  previousid        String
+
+  user_ User @relation(name: "userprofiles_user_", fields: [user], references: [id])
+}
+
+model UserRoleMap {
+  id              String    @id(map: "userrolemap_pkey") @default(uuid())
+  user            String    @unique()
+  role            String
+  createdtenant   String?
+  updatedtenant   String?
+  createduser     String
+  updateduser     String?
+  isactive        Boolean   @default(false)
+  createddatetime DateTime  @db.Timestamp(6)
+  updateddatetime DateTime? @db.Timestamp(6)
+  notes           String?
+  iconpic         String?
+  previousid      String?
+
+  user_ User @relation(name: "userrolemaps_user_", fields: [user], references: [id])
+  role_ Role @relation(name: "userrolemaps_role_", fields: [role], references: [id])
+}
