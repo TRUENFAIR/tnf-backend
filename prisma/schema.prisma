@@ -82,8 +82,10 @@ model RefDatum {
   iconpic         String?
   previousid      String?
 
-  refclass_      RefClass @relation(name: "refdatas_refclass_", fields: [refclass], references: [id])
-  users_usertype User[]   @relation(name: "users_usertype_")
+  refclass_         RefClass @relation(name: "refdatas_refclass_", fields: [refclass], references: [id])
+  users_usertype    User[]   @relation(name: "users_usertype_")
+  topics_topictype_ Topic[]  @relation(name: "topics_topictype_")
+  topics_language_  Topic[]  @relation(name: "topics_language_")
 }
 
 model Role {
@@ -188,12 +190,12 @@ model TenantHierarchy {
 model Topic {
   id              String    @id(map: "survey_pkey") @default(uuid())
   name            String
-  topictype       String?
-  language        String?
+  topictype       String
+  language        String
   startdate       DateTime? @db.Timestamp(6)
   enddate         DateTime? @db.Timestamp(6)
   tenant          String
-  notes           String?
+  description     String?
   createdtenant   String
   updatedtenant   String?
   createduser     String
@@ -202,6 +204,11 @@ model Topic {
   createddatetime DateTime  @db.Timestamp(6)
   updateddatetime DateTime? @db.Timestamp(6)
   previousid      String?
+
+  topictype_            RefDatum       @relation(name: "topics_topictype_", fields: [topictype], references: [id])
+  language_             RefDatum       @relation(name: "topics_language_", fields: [language], references: [id])
+  topicinstances_topic_ TopicInstance? @relation(name: "topicinstances_topic_")
+  topicusers_topic_     TopicUsers[]   @relation(name: "topicusers_topic_")
 }
 
 model TopicComments {
@@ -224,7 +231,7 @@ model TopicComments {
 
 model TopicInstance {
   id              String    @id(map: "surveysection_pkey") @default(uuid())
-  survey          String
+  topic           String    @unique
   createdtenant   String
   updatedtenant   String?
   createduser     String
@@ -234,7 +241,9 @@ model TopicInstance {
   updateddatetime DateTime? @db.Timestamp(6)
   createdchannel  String?
   updatedchannel  String?
-  previousid      String
+  previousid      String?
+
+  topic_ Topic @relation(name: "topicinstances_topic_", fields: [topic], references: [id])
 }
 
 model TopicUsers {
@@ -249,7 +258,9 @@ model TopicUsers {
   isactive        Boolean   @default(false)
   createddatetime DateTime  @db.Timestamp(6)
   updateddatetime DateTime? @db.Timestamp(6)
-  previousid      String
+  previousid      String?
+
+  topic_ Topic @relation(name: "topicusers_topic_", fields: [topic], references: [id])
 }
 
 model User {
