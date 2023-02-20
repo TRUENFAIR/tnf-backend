@@ -6,7 +6,7 @@ import { swaggerDocumentOptions, swaggerPath, swaggerSetupOptions } from "./swag
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  app.useGlobalPipes(new ValidationPipe({ disableErrorMessages: true }));
+  app.useGlobalPipes(new ValidationPipe());
   app.setGlobalPrefix("/api/v1");
 
   // Swagger
