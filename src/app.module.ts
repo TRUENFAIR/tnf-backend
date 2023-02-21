@@ -3,9 +3,9 @@ import { ServeStaticModule } from "@nestjs/serve-static";
 import { PrismaClient } from "@prisma/client";
 import { join } from "path";
 import { AuthModule } from "./auth/auth.module";
-import { CreateTopicsController } from "./create-topics/createTopics.controller";
-import { CreateTopicsModule } from "./create-topics/createTopics.module";
-import { CreateTopicsService } from "./create-topics/createTopics.service";
+import { TopicsController } from "./create-topics/topics.controller";
+import { TopicsModule } from "./create-topics/topics.module";
+import { TopicsService } from "./create-topics/topics.service";
 import { UsersModule } from "./users/users.module";
 
 @Module({
@@ -16,9 +16,9 @@ import { UsersModule } from "./users/users.module";
     }),
     UsersModule,
     AuthModule,
-    CreateTopicsModule
+    TopicsModule
   ],
-  providers: [CreateTopicsService, PrismaClient],
-  controllers: [CreateTopicsController]
+  providers: [TopicsService, PrismaClient],
+  controllers: [TopicsController]
 })
 export class AppModule {}

@@ -1,16 +1,13 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { IsArray, IsNotEmpty, IsOptional, IsString } from "class-validator";
 
-export class CreateTopicDtp {
+export class CreateTopicDto {
   @IsString()
-  @ApiProperty({ type: String })
-  name: string;
-  @IsString()
-  @IsOptional()
   @IsNotEmpty()
   @ApiProperty({ type: String })
-  description?: string;
+  name: string;
+
   @IsArray()
   @ApiProperty({ type: [String] })
-  userIdList: [string];
+  userIdList: string[];
 }
