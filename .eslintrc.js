@@ -1,4 +1,7 @@
 module.exports = {
+  error: {
+    endOfLine: "auto"
+  },
   env: {
     browser: true,
     es2021: true
