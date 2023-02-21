@@ -55,4 +55,58 @@ export class CreateTopicsService {
     });
     return Topic.id;
   }
+
+  async updateTopic(body: CreateTopicDtp, userInformation: UserInfoDto) {
+    const { name, description, userIdList } = body;
+    const topicUpdate = await this.prismaClint.topic.update({
+      where: {
+        id: userInformation.userId
+      },
+      data: {
+        name: name,
+        description: description,
+        createddatetime: new Date(),
+        topicinstances_topic_: {
+          update: {
+            createduser: userInformation.userId,
+            updateddatetime: new Date(),
+            isactive: true
+          }
+        },
+        topicusers_topic_: {
+          updateMany: {
+            where: {
+              id: userInformation.userId
+            },
+
+            data: userIdList.map((userId) => ({
+              userid: userId,
+              createdtenant: userInformation.admin.tenantId,
+              createduser: userInformation.userId,
+              isactive: true,
+              createddatetime: new Date()
+            }))
+          }
+        }
+      },
+      select: {
+        id: true
+      }
+    });
+    return topicUpdate.id;
+  }
+  async deleteTopic(userInformation: UserInfoDto) {
+    const deleteTheTopic = await this.prismaClint.topic.update({
+      where: {
+        id: userInformation.userId
+      },
+      data: {
+        isactive: false
+      },
+      select: {
+        id: true
+      }
+    });
+    return deleteTheTopic.id;
+  }
 }
