@@ -1,10 +1,14 @@
 import { Injectable } from "@nestjs/common";
 import { PrismaClient } from "@prisma/client";
+import { UserInfoDto } from "src/@common/dtos/userInfo.dto";
+import { PasswordService } from "src/auth/password.service";
+import { ListUserResponseDto } from "src/topics/dtos/listTopics.dto";
+import { CreateUserBodyDto, CreateUserResponseDto } from "./dto/createUser.dto";
 import { FindOneResponseDto } from "./dto/findOneResponse.dto";
 
 @Injectable()
 export class UsersService {
-  constructor(private readonly prisma: PrismaClient) {}
+  constructor(private readonly prisma: PrismaClient, private readonly passwordService: PasswordService) { }
 
   async findOne(username: string): Promise<FindOneResponseDto> {
     const user = await this.prisma.user.findUnique({
@@ -16,33 +20,34 @@ export class UsersService {
         login: true,
         password: true,
         createduser: true,
-        createdtenant: true,
-        tenant_: {
+        Tenant_User_tenantToTenant: {
           select: {
+            id: true,
             loginname: true
           }
         },
-        userprofiles_user_: {
+        UserProfile_UserProfile_userToUser: {
           select: {
             firstname: true,
             lastname: true
           }
         },
-        userrolemaps_user_: {
+        UserRoleMap_UserRoleMap_userToUser: {
           select: {
-            role_: {
+            Role: {
               select: {
                 name: true,
-                code: true
+                code: true,
               }
             }
           }
-        }
+        },
       }
     });
 
     if (user) {
-      const fullname = `${user.userprofiles_user_?.firstname || ""} ${user.userprofiles_user_?.lastname || ""}`.trim();
+      const userProfile = user.UserProfile_UserProfile_userToUser;
+      const fullname = `${userProfile?.firstname || ""} ${userProfile?.lastname || ""}`.trim();
 
       return {
         userId: user.id,
@@ -51,12 +56,12 @@ export class UsersService {
         fullname: fullname || null,
         admin: {
           userId: user.createduser,
-          tenantId: user.createdtenant,
-          loginname: user.tenant_.loginname
+          tenantId: user.Tenant_User_tenantToTenant.id,
+          loginname: user.Tenant_User_tenantToTenant.loginname
         },
         role: {
-          name: user.userrolemaps_user_.role_.name,
-          code: user.userrolemaps_user_.role_.code
+          name: user.UserRoleMap_UserRoleMap_userToUser.Role?.name,
+          code: user.UserRoleMap_UserRoleMap_userToUser.Role?.code
         }
       };
     }
@@ -64,15 +69,138 @@ export class UsersService {
     return null;
   }
 
-  async listOfUsers(): Promise<any> {
+  async createUser(body: CreateUserBodyDto, userInfo: UserInfoDto): Promise<CreateUserResponseDto> {
+    const password =
+      body.firstName.replace(" ", "").slice(0, 3) +
+      `${Math.floor(Math.random() * 10)}${Math.floor(Math.random() * 10)}` +
+      ("0" + new Date()?.getDate()).slice(-2) +
+      new Date()?.getMilliseconds();
+
+    const user = await this.prisma.user.create({
+      data: {
+        login: body.phone,
+        password: await this.passwordService.hash(password),
+        createddatetime: new Date(),
+        isactive: true,
+        RefDatum_User_usertypeToRefDatum: {
+          connect: {
+            refdatacode: "USER_TYPE.USER"
+          }
+        },
+        Tenant_User_tenantToTenant: {
+          connect: {
+            id: userInfo.admin.tenantId
+          }
+        },
+        Tenant_User_createdtenantToTenant: {
+          connect: {
+            id: userInfo.admin.tenantId,
+          }
+        },
+        User_User_createduserToUser: {
+          connect: {
+            id: userInfo.userId
+          }
+        },
+        UserProfile_UserProfile_userToUser: {
+          create: {
+            firstname: body.firstName,
+            lastname: body.lastName,
+            isactive: true,
+            createddatetime: new Date(),
+            Tenant_UserProfile_createdtenantToTenant: {
+              connect: {
+                id: userInfo.admin.tenantId
+              }
+            },
+            User_UserProfile_createduserToUser: {
+              connect: {
+                id: userInfo.userId
+              }
+            }
+          }
+        },
+        UserContact_UserContact_userToUser: {
+          create: {
+            value: body.phone,
+            isactive: true,
+            createddatetime: new Date(),
+            User_UserContact_createduserToUser: {
+              connect: {
+                id: userInfo.userId
+              }
+            },
+            Tenant_UserContact_createdtenantToTenant: {
+              connect: {
+                id: userInfo.admin.tenantId
+              }
+            },
+            UserContact_RefDatum_usercontacttypeToRefDatum: {
+              connect: {
+                refdatacode: "CONTACT_TYPE.PHONE"
+              }
+            },
+          },
+        },
+        UserRoleMap_UserRoleMap_userToUser: {
+          create: {
+            isactive: true,
+            createddatetime: new Date(),
+            Role: {
+              connect: {
+                code: `role.${userInfo.admin.loginname}.user`
+              }
+            },
+            User_UserRoleMap_createduserToUser: {
+              connect: {
+                id: userInfo.userId
+              }
+            },
+            Tenant_UserRoleMap_createdtenantToTenant: {
+              connect: {
+                id: userInfo.admin.tenantId
+              }
+            },
+          }
+        },
+      },
+      select: {
+        id: true
+      }
+    });
+
+    return {
+      userId: user.id,
+      username: body.phone,
+      password: password
+    };
+  }
+
+  async usersListFormForum(userInfo: UserInfoDto): Promise<ListUserResponseDto[]> {
     const user = await this.prisma.user.findMany({
       select: {
         id: true,
-        tenant: true
+        login: true,
+        tenant: true,
+        UserProfile_UserProfile_userToUser: {
+          select: {
+            firstname: true,
+            lastname: true
+          }
+        }
       },
       where: {
-        isactive: true
+        isactive: true,
+        NOT: {
+          id: userInfo.userId
+        }
       }
     });
+
+    return user.map((user) => ({
+      id: user.id,
+      name: `${user.UserProfile_UserProfile_userToUser?.firstname ?? user.login} ${user.UserProfile_UserProfile_userToUser?.lastname ?? ""}`.trim(),
+      tenantId: user.tenant
+    }))
   }
 }

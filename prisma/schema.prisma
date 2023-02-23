@@ -8,207 +8,378 @@ datasource db {
 }
 
 model NotificationTemplate {
-  id              String    @id(map: "notificationtemplate_pkey") @default(uuid())
-  templatename    String?
-  contenttype     String?
-  templatedata    String?
-  language        String
-  tenant          String?
-  createdtenant   String?
-  updatedtenant   String?
-  createduser     String?
-  updateduser     String?
-  isactive        Boolean   @default(false)
-  createddatetime DateTime? @db.Timestamp(6)
-  updateddatetime DateTime? @db.Timestamp(6)
-  createdchannel  String?
-  updatedchannel  String?
-  notes           String?
-  iconpic         String?
-  previousid      String
+  id                                                String    @id(map: "notificationtemplate_pkey") @default(uuid())
+  templatename                                      String?
+  contenttype                                       String?
+  templatedata                                      String?
+  language                                          String
+  tenant                                            String?
+  createdtenant                                     String?
+  updatedtenant                                     String?
+  createduser                                       String?
+  updateduser                                       String?
+  isactive                                          Boolean   @default(false)
+  createddatetime                                   DateTime? @db.Timestamp(6)
+  updateddatetime                                   DateTime? @db.Timestamp(6)
+  createdchannel                                    String?
+  updatedchannel                                    String?
+  notes                                             String?
+  iconpic                                           String?
+  previousid                                        String
+  Tenant_NotificationTemplate_createdtenantToTenant Tenant?   @relation("NotificationTemplate_createdtenantToTenant", fields: [createdtenant], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_notificationtemplate_createdtenant_tenant")
+  User_NotificationTemplate_createduserToUser       User?     @relation("NotificationTemplate_createduserToUser", fields: [createduser], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_notificationtemplate_createduser_user")
+  RefDatum                                          RefDatum  @relation(fields: [language], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_notificationtemplate_language_refdata")
+  Tenant_NotificationTemplate_tenantToTenant        Tenant?   @relation("NotificationTemplate_tenantToTenant", fields: [tenant], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_notificationtemplate_tenant_tenant")
+  Tenant_NotificationTemplate_updatedtenantToTenant Tenant?   @relation("NotificationTemplate_updatedtenantToTenant", fields: [updatedtenant], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_notificationtemplate_updatedtenant_tenant")
+  User_NotificationTemplate_updateduserToUser       User?     @relation("NotificationTemplate_updateduserToUser", fields: [updateduser], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_notificationtemplate_updateduser_user")
+
+  @@unique([templatename, tenant], map: "indx_unq_notificationtemplate_templatename")
+  @@index([createdtenant], map: "indx_notificationtemplate_createdtenant")
+  @@index([createduser], map: "indx_notificationtemplate_createduser")
+  @@index([iconpic], map: "indx_notificationtemplate_iconpic")
+  @@index([language], map: "indx_notificationtemplate_language")
+  @@index([tenant], map: "indx_notificationtemplate_tenant")
+  @@index([updatedtenant], map: "indx_notificationtemplate_updatedtenant")
+  @@index([updateduser], map: "indx_notificationtemplate_updateduser")
 }
 
 model RefClass {
-  id                 String     @id(map: "refclass_pkey") @default(uuid())
-  name               String
-  code               String     @unique(map: "indx_unq_refclass_code")
-  createdtenant      String
-  updatedtenant      String?
-  createduser        String
-  updateduser        String?
-  isactive           Boolean    @default(false)
-  createddatetime    DateTime   @db.Timestamp(6)
-  updateddatetime    DateTime?  @db.Timestamp(6)
-  createdchannel     String?
-  updatedchannel     String?
-  notes              String?
-  iconpic            String?
-  previousid         String?
-  refdatas_refclass_ RefDatum[] @relation(name: "refdatas_refclass_")
+  id                                                           String              @id(map: "refclass_pkey") @default(uuid())
+  name                                                         String
+  code                                                         String              @unique(map: "indx_unq_refclass_code")
+  createdtenant                                                String
+  updatedtenant                                                String?
+  createduser                                                  String
+  updateduser                                                  String?
+  isactive                                                     Boolean             @default(false)
+  createddatetime                                              DateTime            @db.Timestamp(6)
+  updateddatetime                                              DateTime?           @db.Timestamp(6)
+  createdchannel                                               String?
+  updatedchannel                                               String?
+  notes                                                        String?
+  iconpic                                                      String?
+  previousid                                                   String?
+  Tenant_RefClass_createdtenantToTenant                        Tenant              @relation("RefClass_createdtenantToTenant", fields: [createdtenant], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_refclass_createdtenant_tenant")
+  User_RefClass_createduserToUser                              User                @relation("RefClass_createduserToUser", fields: [createduser], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_refclass_createduser_user")
+  Tenant_RefClass_updatedtenantToTenant                        Tenant?             @relation("RefClass_updatedtenantToTenant", fields: [updatedtenant], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_refclass_updatedtenant_tenant")
+  User_RefClass_updateduserToUser                              User?               @relation("RefClass_updateduserToUser", fields: [updateduser], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_refclass_updateduser_user")
+  RefClassHierarchy_RefClassHierarchy_parentrefclassToRefClass RefClassHierarchy[] @relation("RefClassHierarchy_parentrefclassToRefClass")
+  RefClassHierarchy_RefClassHierarchy_refclassToRefClass       RefClassHierarchy[] @relation("RefClassHierarchy_refclassToRefClass")
+  RefDatum                                                     RefDatum[]
+
+  @@index([createdtenant], map: "indx_refclass_createdtenant")
+  @@index([createduser], map: "indx_refclass_createduser")
+  @@index([iconpic], map: "indx_refclass_iconpic")
+  @@index([previousid], map: "indx_refclass_previousid")
+  @@index([updatedtenant], map: "indx_refclass_updatedtenant")
+  @@index([updateduser], map: "indx_refclass_updateduser")
 }
 
 model RefClassHierarchy {
-  id             String  @id(map: "refclasshierarchy_pkey") @default(uuid())
-  refclass       String
-  parentrefclass String
-  isactive       Boolean @default(false)
-  previousid     String
+  id                                                  String   @id(map: "refclasshierarchy_pkey") @default(uuid())
+  refclass                                            String
+  parentrefclass                                      String
+  isactive                                            Boolean  @default(false)
+  previousid                                          String
+  RefClass_RefClassHierarchy_parentrefclassToRefClass RefClass @relation("RefClassHierarchy_parentrefclassToRefClass", fields: [parentrefclass], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_refclasshierarchy_parentrefclass_refclass")
+  RefClass_RefClassHierarchy_refclassToRefClass       RefClass @relation("RefClassHierarchy_refclassToRefClass", fields: [refclass], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_refclasshierarchy_refclass_refclass")
+
+  @@index([parentrefclass], map: "indx_refclasshierarchy_parentrefclass")
+  @@index([previousid], map: "indx_refclasshierarchy_previousid")
+  @@index([refclass], map: "indx_refclasshierarchy_refclass")
 }
 
 model RefDataHierarchy {
-  id            String  @id(map: "refdatahierarchy_pkey") @default(uuid())
-  refdata       String
-  parentrefdata String
-  isactive      Boolean @default(false)
-  previousid    String
+  id                                                String   @id(map: "refdatahierarchy_pkey") @default(uuid())
+  refdata                                           String
+  parentrefdata                                     String
+  isactive                                          Boolean  @default(false)
+  previousid                                        String
+  RefDatum_RefDataHierarchy_parentrefdataToRefDatum RefDatum @relation("RefDataHierarchy_parentrefdataToRefDatum", fields: [parentrefdata], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_refdatahierarchy_parentrefdata_refdata")
+  RefDatum_RefDataHierarchy_refdataToRefDatum       RefDatum @relation("RefDataHierarchy_refdataToRefDatum", fields: [refdata], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_refdatahierarchy_refdata_refdata")
+
+  @@index([parentrefdata], map: "indx_refdatahierarchy_parentrefdata")
+  @@index([previousid], map: "indx_refdatahierarchy_previousid")
+  @@index([refdata], map: "indx_refdatahierarchy_refdata")
 }
 
 model RefDatum {
-  id              String    @id(map: "refdata_pkey") @default(uuid())
-  refclass        String
-  refdatacode     String?   @unique(map: "indx_unq_refdata_refdatacode")
-  order           String?
-  description     String
-  createdtenant   String
-  updatedtenant   String?
-  createduser     String
-  updateduser     String?
-  isactive        Boolean   @default(false)
-  createddatetime DateTime? @db.Timestamp(6)
-  updateddatetime DateTime? @db.Timestamp(6)
-  createdchannel  String?
-  updatedchannel  String?
-  notes           String?
-  iconpic         String?
-  previousid      String?
+  id                                                        String                 @id(map: "refdata_pkey") @default(uuid())
+  refclass                                                  String
+  refdatacode                                               String?                @unique(map: "indx_unq_refdata_refdatacode")
+  order                                                     String?
+  description                                               String
+  createdtenant                                             String
+  updatedtenant                                             String?
+  createduser                                               String
+  updateduser                                               String?
+  isactive                                                  Boolean                @default(false)
+  createddatetime                                           DateTime?              @db.Timestamp(6)
+  updateddatetime                                           DateTime?              @db.Timestamp(6)
+  createdchannel                                            String?
+  updatedchannel                                            String?
+  notes                                                     String?
+  iconpic                                                   String?
+  previousid                                                String?
+  NotificationTemplate                                      NotificationTemplate[]
+  RefDataHierarchy_RefDataHierarchy_parentrefdataToRefDatum RefDataHierarchy[]     @relation("RefDataHierarchy_parentrefdataToRefDatum")
+  RefDataHierarchy_RefDataHierarchy_refdataToRefDatum       RefDataHierarchy[]     @relation("RefDataHierarchy_refdataToRefDatum")
+  Tenant_RefDatum_createdtenantToTenant                     Tenant                 @relation("RefDatum_createdtenantToTenant", fields: [createdtenant], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_refdata_createdtenant_tenant")
+  User_RefDatum_createduserToUser                           User                   @relation("RefDatum_createduserToUser", fields: [createduser], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_refdata_createduser_user")
+  RefClass                                                  RefClass               @relation(fields: [refclass], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_refdata_refclass_refclass")
+  Tenant_RefDatum_updatedtenantToTenant                     Tenant?                @relation("RefDatum_updatedtenantToTenant", fields: [updatedtenant], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_refdata_updatedtenant_tenant")
+  User_RefDatum_updateduserToUser                           User?                  @relation("RefDatum_updateduserToUser", fields: [updateduser], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_refdata_updateduser_user")
+  Tenant_Tenant_iconpicToRefDatum                           Tenant[]               @relation("Tenant_iconpicToRefDatum")
+  TenantAddress_TenantAddress_cityToRefDatum                TenantAddress[]        @relation("TenantAddress_cityToRefDatum")
+  TenantAddress_TenantAddress_countryToRefDatum             TenantAddress[]        @relation("TenantAddress_countryToRefDatum")
+  TenantAddress_TenantAddress_districtToRefDatum            TenantAddress[]        @relation("TenantAddress_districtToRefDatum")
+  TenantAddress_TenantAddress_stateToRefDatum               TenantAddress[]        @relation("TenantAddress_stateToRefDatum")
+  TenantAddress_TenantAddress_tenantaddresstypeToRefDatum   TenantAddress[]        @relation("TenantAddress_tenantaddresstypeToRefDatum")
+  TenantContact                                             TenantContact[]
+  Topic_Topic_languageToRefDatum                            Topic[]                @relation("Topic_languageToRefDatum")
+  Topic_Topic_topictypeToRefDatum                           Topic[]                @relation("Topic_topictypeToRefDatum")
+  User_User_usertypeToRefDatum                              User[]                 @relation("User_usertypeToRefDatum")
+  UserContact                                               UserContact[]          @relation(name: "UserContact_usercontacttypeToRefDatum")
+  UserProfile_UserProfile_casteToRefDatum                   UserProfile[]          @relation("UserProfile_casteToRefDatum")
+  UserProfile_UserProfile_categoryToRefDatum                UserProfile[]          @relation("UserProfile_categoryToRefDatum")
+  UserProfile_UserProfile_disabilitystatusToRefDatum        UserProfile[]          @relation("UserProfile_disabilitystatusToRefDatum")
+  UserProfile_UserProfile_genderToRefDatum                  UserProfile[]          @relation("UserProfile_genderToRefDatum")
+  UserProfile_UserProfile_maritialstatusToRefDatum          UserProfile[]          @relation("UserProfile_maritialstatusToRefDatum")
+  UserProfile_UserProfile_religionToRefDatum                UserProfile[]          @relation("UserProfile_religionToRefDatum")
+  UserProfile_UserProfile_salutationToRefDatum              UserProfile[]          @relation("UserProfile_salutationToRefDatum")
+  UserProfile_UserProfile_sourceToRefDatum                  UserProfile[]          @relation("UserProfile_sourceToRefDatum")
 
-  refclass_         RefClass @relation(name: "refdatas_refclass_", fields: [refclass], references: [id])
-  users_usertype    User[]   @relation(name: "users_usertype_")
-  topics_topictype_ Topic[]  @relation(name: "topics_topictype_")
-  topics_language_  Topic[]  @relation(name: "topics_language_")
+  @@index([createdtenant], map: "indx_refdata_createdtenant")
+  @@index([createduser], map: "indx_refdata_createduser")
+  @@index([iconpic], map: "indx_refdata_iconpic")
+  @@index([previousid], map: "indx_refdata_previousid")
+  @@index([refclass], map: "indx_refdata_refclass")
+  @@index([updatedtenant], map: "indx_refdata_updatedtenant")
+  @@index([updateduser], map: "indx_refdata_updateduser")
 }
 
 model Role {
-  id              String    @id(map: "role_pkey") @default(uuid())
-  tenant          String?
-  name            String?
-  code            String?
-  createdtenant   String?
-  updatedtenant   String?
-  createduser     String?
-  updateduser     String?
-  isactive        Boolean?  @default(false)
-  createddatetime DateTime? @db.Timestamp(6)
-  updateddatetime DateTime? @db.Timestamp(6)
-  notes           String?
-  iconpic         String?
-  previousid      String?
+  id                                String        @id(map: "role_pkey") @default(uuid())
+  tenant                            String?
+  name                              String?
+  code                              String?       @unique()
+  createdtenant                     String?
+  updatedtenant                     String?
+  createduser                       String?
+  updateduser                       String?
+  isactive                          Boolean?      @default(false)
+  createddatetime                   DateTime?     @db.Timestamp(6)
+  updateddatetime                   DateTime?     @db.Timestamp(6)
+  notes                             String?
+  iconpic                           String?
+  previousid                        String?
+  Tenant_Role_createdtenantToTenant Tenant?       @relation("Role_createdtenantToTenant", fields: [createdtenant], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_role_createdtenant_tenant")
+  User_Role_createduserToUser       User?         @relation("Role_createduserToUser", fields: [createduser], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_role_createduser_user")
+  Tenant_Role_updatedtenantToTenant Tenant?       @relation("Role_updatedtenantToTenant", fields: [updatedtenant], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_role_updatedtenant_tenant")
+  User_Role_updateduserToUser       User?         @relation("Role_updateduserToUser", fields: [updateduser], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_role_updateduser_user")
+  UserRoleMap                       UserRoleMap[]
 
-  userrolemaps_role_ UserRoleMap[] @relation(name: "userrolemaps_role_")
+  @@index([createdtenant], map: "indx_role_createdtenant")
+  @@index([createduser], map: "indx_role_createduser")
+  @@index([iconpic], map: "indx_role_iconpic")
+  @@index([previousid], map: "indx_role_previousid")
+  @@index([updatedtenant], map: "indx_role_updatedtenant")
+  @@index([updateduser], map: "indx_role_updateduser")
 }
 
 model Tenant {
-  id              String    @id(map: "tenant_pkey") @default(uuid())
-  name            String?
-  loginname       String?   @unique(map: "indx_unq_tenant_loginname")
-  iconpic         String?
-  userlimit       Int?
-  description     String?
-  createdtenant   String?
-  updatedtenant   String?
-  createduser     String?
-  updateduser     String?
-  isactive        Boolean   @default(false)
-  createddatetime DateTime  @db.Timestamp(6)
-  updateddatetime DateTime? @db.Timestamp(6)
-  createdchannel  String?
-  updatedchannel  String?
-  notes           String?
-  previousid      String?
-  users_tenant_   User[]    @relation(name: "users_tenant_")
+  id                                                              String                 @id(map: "tenant_pkey") @default(uuid())
+  name                                                            String?
+  loginname                                                       String?                @unique(map: "indx_unq_tenant_loginname")
+  iconpic                                                         String?
+  userlimit                                                       Int?
+  description                                                     String?
+  createdtenant                                                   String?
+  updatedtenant                                                   String?
+  createduser                                                     String?
+  updateduser                                                     String?
+  isactive                                                        Boolean                @default(false)
+  createddatetime                                                 DateTime               @db.Timestamp(6)
+  updateddatetime                                                 DateTime?              @db.Timestamp(6)
+  createdchannel                                                  String?
+  updatedchannel                                                  String?
+  notes                                                           String?
+  previousid                                                      String?
+  NotificationTemplate_NotificationTemplate_createdtenantToTenant NotificationTemplate[] @relation("NotificationTemplate_createdtenantToTenant")
+  NotificationTemplate_NotificationTemplate_tenantToTenant        NotificationTemplate[] @relation("NotificationTemplate_tenantToTenant")
+  NotificationTemplate_NotificationTemplate_updatedtenantToTenant NotificationTemplate[] @relation("NotificationTemplate_updatedtenantToTenant")
+  RefClass_RefClass_createdtenantToTenant                         RefClass[]             @relation("RefClass_createdtenantToTenant")
+  RefClass_RefClass_updatedtenantToTenant                         RefClass[]             @relation("RefClass_updatedtenantToTenant")
+  RefDatum_RefDatum_createdtenantToTenant                         RefDatum[]             @relation("RefDatum_createdtenantToTenant")
+  RefDatum_RefDatum_updatedtenantToTenant                         RefDatum[]             @relation("RefDatum_updatedtenantToTenant")
+  Role_Role_createdtenantToTenant                                 Role[]                 @relation("Role_createdtenantToTenant")
+  Role_Role_updatedtenantToTenant                                 Role[]                 @relation("Role_updatedtenantToTenant")
+  RefDatum_Tenant_iconpicToRefDatum                               RefDatum?              @relation("Tenant_iconpicToRefDatum", fields: [iconpic], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_tenant_status_refdata")
+  TenantAddress_TenantAddress_createdtenantToTenant               TenantAddress[]        @relation("TenantAddress_createdtenantToTenant")
+  TenantAddress_TenantAddress_tenantToTenant                      TenantAddress[]        @relation("TenantAddress_tenantToTenant")
+  TenantAddress_TenantAddress_updatedtenantToTenant               TenantAddress[]        @relation("TenantAddress_updatedtenantToTenant")
+  TenantContact_TenantContact_createdtenantToTenant               TenantContact[]        @relation("TenantContact_createdtenantToTenant")
+  TenantContact_TenantContact_tenantToTenant                      TenantContact[]        @relation("TenantContact_tenantToTenant")
+  TenantContact_TenantContact_updatedtenantToTenant               TenantContact[]        @relation("TenantContact_updatedtenantToTenant")
+  TenantHierarchy_TenantHierarchy_parenttenantToTenant            TenantHierarchy[]      @relation("TenantHierarchy_parenttenantToTenant")
+  TenantHierarchy_TenantHierarchy_tenantToTenant                  TenantHierarchy[]      @relation("TenantHierarchy_tenantToTenant")
+  Topic_Topic_createdtenantToTenant                               Topic[]                @relation("Topic_createdtenantToTenant")
+  Topic_Topic_tenantToTenant                                      Topic[]                @relation("Topic_tenantToTenant")
+  Topic_Topic_updatedtenantToTenant                               Topic[]                @relation("Topic_updatedtenantToTenant")
+  TopicInstance_TopicInstance_createdtenantToTenant               TopicInstance[]        @relation("TopicInstance_createdtenantToTenant")
+  TopicInstance_TopicInstance_updatedtenantToTenant               TopicInstance[]        @relation("TopicInstance_updatedtenantToTenant")
+  TopicUsers_TopicUsers_updatedtenantToTenant                     TopicUsers[]           @relation("TopicUsers_updatedtenantToTenant")
+  TopicUsers_TopicUsers_createdtenantToTenant                     TopicUsers[]           @relation("TopicUsers_createdtenantToTenant")
+  User_User_createdtenantToTenant                                 User[]                 @relation("User_createdtenantToTenant")
+  User_User_updatedtenantToTenant                                 User[]                 @relation("User_updatedtenantToTenant")
+  User_User_tenantToTenant                                        User[]                 @relation("User_tenantToTenant")
+  UserContact_UserContact_createdtenantToTenant                   UserContact[]          @relation("UserContact_createdtenantToTenant")
+  UserContact_UserContact_updatedtenantToTenant                   UserContact[]          @relation("UserContact_updatedtenantToTenant")
+  UserProfile_UserProfile_createdtenantToTenant                   UserProfile[]          @relation("UserProfile_createdtenantToTenant")
+  UserProfile_UserProfile_updatedtenantToTenant                   UserProfile[]          @relation("UserProfile_updatedtenantToTenant")
+  UserRoleMap_UserRoleMap_createdtenantToTenant                   UserRoleMap[]          @relation("UserRoleMap_createdtenantToTenant")
+  UserRoleMap_UserRoleMap_updatedtenantToTenant                   UserRoleMap[]          @relation("UserRoleMap_updatedtenantToTenant")
+
+  @@index([previousid], map: "indx_tenant_previousid")
+  @@index([iconpic], map: "indx_tenant_status")
 }
 
 model TenantAddress {
-  id                String    @id(map: "tenantaddress_pkey") @default(uuid())
-  tenant            String
-  addressline1      String?
-  addressline2      String?
-  city              String
-  district          String?
-  state             String?
-  country           String?
-  pincode           String?
-  isverified        Boolean?  @default(false)
-  verifiedby        String?
-  verifieddatetime  DateTime? @db.Timestamp(6)
-  tenantaddresstype String?
-  isprimary         Boolean?  @default(false)
-  createdtenant     String?
-  updatedtenant     String?
-  createduser       String?
-  updateduser       String?
-  isactive          Boolean   @default(false)
-  createddatetime   DateTime  @db.Timestamp(6)
-  updateddatetime   DateTime? @db.Timestamp(6)
-  notes             String?
-  iconpic           String?
-  previousid        String?
+  id                                                 String    @id(map: "tenantaddress_pkey") @default(uuid())
+  tenant                                             String
+  addressline1                                       String?
+  addressline2                                       String?
+  city                                               String
+  district                                           String?
+  state                                              String?
+  country                                            String?
+  pincode                                            String?
+  isverified                                         Boolean?  @default(false)
+  verifiedby                                         String?
+  verifieddatetime                                   DateTime? @db.Timestamp(6)
+  tenantaddresstype                                  String?
+  isprimary                                          Boolean?  @default(false)
+  createdtenant                                      String?
+  updatedtenant                                      String?
+  createduser                                        String?
+  updateduser                                        String?
+  isactive                                           Boolean   @default(false)
+  createddatetime                                    DateTime  @db.Timestamp(6)
+  updateddatetime                                    DateTime? @db.Timestamp(6)
+  notes                                              String?
+  iconpic                                            String?
+  previousid                                         String?
+  RefDatum_TenantAddress_cityToRefDatum              RefDatum  @relation("TenantAddress_cityToRefDatum", fields: [city], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_tenantaddress_city_refdata")
+  RefDatum_TenantAddress_countryToRefDatum           RefDatum? @relation("TenantAddress_countryToRefDatum", fields: [country], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_tenantaddress_country_refdata")
+  Tenant_TenantAddress_createdtenantToTenant         Tenant?   @relation("TenantAddress_createdtenantToTenant", fields: [createdtenant], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_tenantaddress_createdtenant_tenant")
+  User_TenantAddress_createduserToUser               User?     @relation("TenantAddress_createduserToUser", fields: [createduser], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_tenantaddress_createduser_user")
+  RefDatum_TenantAddress_districtToRefDatum          RefDatum? @relation("TenantAddress_districtToRefDatum", fields: [district], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_tenantaddress_district_refdata")
+  RefDatum_TenantAddress_stateToRefDatum             RefDatum? @relation("TenantAddress_stateToRefDatum", fields: [state], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_tenantaddress_state_refdata")
+  Tenant_TenantAddress_tenantToTenant                Tenant    @relation("TenantAddress_tenantToTenant", fields: [tenant], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_tenantaddress_tenant_tenant")
+  RefDatum_TenantAddress_tenantaddresstypeToRefDatum RefDatum? @relation("TenantAddress_tenantaddresstypeToRefDatum", fields: [tenantaddresstype], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_tenantaddress_type_refdata")
+  Tenant_TenantAddress_updatedtenantToTenant         Tenant?   @relation("TenantAddress_updatedtenantToTenant", fields: [updatedtenant], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_tenantaddress_updatedtenant_tenant")
+  User_TenantAddress_updateduserToUser               User?     @relation("TenantAddress_updateduserToUser", fields: [updateduser], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_tenantaddress_updateduser_user")
+
+  @@index([city], map: "indx_tenantaddress_city")
+  @@index([country], map: "indx_tenantaddress_country")
+  @@index([createdtenant], map: "indx_tenantaddress_createdtenant")
+  @@index([createduser], map: "indx_tenantaddress_createduser")
+  @@index([district], map: "indx_tenantaddress_district")
+  @@index([iconpic], map: "indx_tenantaddress_iconpic")
+  @@index([previousid], map: "indx_tenantaddress_previousid")
+  @@index([state], map: "indx_tenantaddress_state")
+  @@index([tenant], map: "indx_tenantaddress_tenant")
+  @@index([tenantaddresstype], map: "indx_tenantaddress_type")
+  @@index([updatedtenant], map: "indx_tenantaddress_updatedtenant")
+  @@index([updateduser], map: "indx_tenantaddress_updateduser")
 }
 
 model TenantContact {
-  id                String    @id(map: "tenantcontact_pkey") @default(uuid())
-  tenant            String
-  tenantcontacttype String
-  value             String
-  isverified        Boolean?  @default(false)
-  verifiedby        String?
-  verifieddatetime  DateTime? @db.Timestamp(6)
-  isprimarycontact  Boolean?  @default(false)
-  name              String?
-  createdtenant     String
-  updatedtenant     String?
-  createduser       String
-  updateduser       String?
-  isactive          Boolean   @default(false)
-  createddatetime   DateTime  @db.Timestamp(6)
-  updateddatetime   DateTime? @db.Timestamp(6)
-  notes             String?
-  iconpic           String?
-  previousid        String?
+  id                                         String    @id(map: "tenantcontact_pkey") @default(uuid())
+  tenant                                     String
+  tenantcontacttype                          String
+  value                                      String
+  isverified                                 Boolean?  @default(false)
+  verifiedby                                 String?
+  verifieddatetime                           DateTime? @db.Timestamp(6)
+  isprimarycontact                           Boolean?  @default(false)
+  name                                       String?
+  createdtenant                              String
+  updatedtenant                              String?
+  createduser                                String
+  updateduser                                String?
+  isactive                                   Boolean   @default(false)
+  createddatetime                            DateTime  @db.Timestamp(6)
+  updateddatetime                            DateTime? @db.Timestamp(6)
+  notes                                      String?
+  iconpic                                    String?
+  previousid                                 String?
+  Tenant_TenantContact_createdtenantToTenant Tenant    @relation("TenantContact_createdtenantToTenant", fields: [createdtenant], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_tenantcontact_createdtenant_tenant")
+  User_TenantContact_createduserToUser       User      @relation("TenantContact_createduserToUser", fields: [createduser], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_tenantcontact_createduser_user")
+  Tenant_TenantContact_tenantToTenant        Tenant    @relation("TenantContact_tenantToTenant", fields: [tenant], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_tenantcontact_tenant_tenant")
+  RefDatum                                   RefDatum  @relation(fields: [tenantcontacttype], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_tenantcontact_type_refdata")
+  Tenant_TenantContact_updatedtenantToTenant Tenant?   @relation("TenantContact_updatedtenantToTenant", fields: [updatedtenant], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_tenantcontact_updatedtenant_tenant")
+  User_TenantContact_updateduserToUser       User?     @relation("TenantContact_updateduserToUser", fields: [updateduser], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_tenantcontact_updateduser_user")
+
+  @@index([createdtenant], map: "indx_tenantcontact_createdtenant")
+  @@index([createduser], map: "indx_tenantcontact_createduser")
+  @@index([iconpic], map: "indx_tenantcontact_iconpic")
+  @@index([previousid], map: "indx_tenantcontact_previousid")
+  @@index([tenant], map: "indx_tenantcontact_tenant")
+  @@index([tenantcontacttype], map: "indx_tenantcontact_type")
+  @@index([updatedtenant], map: "indx_tenantcontact_updatedtenant")
+  @@index([updateduser], map: "indx_tenantcontact_updateduser")
 }
 
 model TenantHierarchy {
-  id              String   @id(map: "tenanthierarchy_pkey") @default(uuid())
-  tenant          String
-  parenttenant    String
-  businessowner   String?
-  isactive        Boolean  @default(false)
-  createddatetime DateTime @db.Timestamp(6)
-  previousid      String?
+  id                                          String   @id(map: "tenanthierarchy_pkey") @default(uuid())
+  tenant                                      String
+  parenttenant                                String
+  businessowner                               String?
+  isactive                                    Boolean  @default(false)
+  createddatetime                             DateTime @db.Timestamp(6)
+  previousid                                  String?
+  Tenant_TenantHierarchy_parenttenantToTenant Tenant   @relation("TenantHierarchy_parenttenantToTenant", fields: [parenttenant], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_tenanthierarchy_parenttenant_tenant")
+  Tenant_TenantHierarchy_tenantToTenant       Tenant   @relation("TenantHierarchy_tenantToTenant", fields: [tenant], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_tenanthierarchy_tenant_tenant")
+
+  @@index([parenttenant], map: "indx_tenanthierarchy_parenttenant")
+  @@index([previousid], map: "indx_tenanthierarchy_previousid")
+  @@index([tenant], map: "indx_tenanthierarchy_tenant")
 }
 
 model Topic {
-  id              String    @id(map: "survey_pkey") @default(uuid())
-  name            String
-  topictype       String
-  language        String
-  startdate       DateTime? @db.Timestamp(6)
-  enddate         DateTime? @db.Timestamp(6)
-  tenant          String
-  description     String?
-  createdtenant   String
-  updatedtenant   String?
-  createduser     String
-  updateduser     String?
-  isactive        Boolean   @default(false)
-  createddatetime DateTime  @db.Timestamp(6)
-  updateddatetime DateTime? @db.Timestamp(6)
-  previousid      String?
+  id                                 String          @id(map: "survey_pkey") @default(uuid())
+  name                               String
+  topictype                          String?
+  language                           String?
+  startdate                          DateTime?       @db.Timestamp(6)
+  enddate                            DateTime?       @db.Timestamp(6)
+  tenant                             String
+  description                        String?
+  createdtenant                      String
+  updatedtenant                      String?
+  createduser                        String
+  updateduser                        String?
+  isactive                           Boolean         @default(false)
+  createddatetime                    DateTime        @db.Timestamp(6)
+  updateddatetime                    DateTime?       @db.Timestamp(6)
+  previousid                         String?
+  Tenant_Topic_createdtenantToTenant Tenant          @relation("Topic_createdtenantToTenant", fields: [createdtenant], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_survey_createdtenant_tenant")
+  User_Topic_createduserToUser       User            @relation("Topic_createduserToUser", fields: [createduser], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_survey_createduser_user")
+  RefDatum_Topic_languageToRefDatum  RefDatum?       @relation("Topic_languageToRefDatum", fields: [language], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_survey_language_refdata")
+  Tenant_Topic_tenantToTenant        Tenant          @relation("Topic_tenantToTenant", fields: [tenant], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_survey_tenant_tenant")
+  Tenant_Topic_updatedtenantToTenant Tenant?         @relation("Topic_updatedtenantToTenant", fields: [updatedtenant], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_survey_updatedtenant_tenant")
+  User_Topic_updateduserToUser       User?           @relation("Topic_updateduserToUser", fields: [updateduser], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_survey_updateduser_user")
+  RefDatum_Topic_topictypeToRefDatum RefDatum?       @relation("Topic_topictypeToRefDatum", fields: [topictype], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_topictype")
+  TopicInstance                      TopicInstance[]
+  TopicUsers                         TopicUsers[]
 
-  topictype_            RefDatum       @relation(name: "topics_topictype_", fields: [topictype], references: [id])
-  language_             RefDatum       @relation(name: "topics_language_", fields: [language], references: [id])
-  topicinstances_topic_ TopicInstance? @relation(name: "topicinstances_topic_")
-  topicusers_topic_     TopicUsers[]   @relation(name: "topicusers_topic_")
+  @@index([createdtenant], map: "indx_survey_createdtenant")
+  @@index([createduser], map: "indx_survey_createduser")
+  @@index([language], map: "indx_survey_language")
+  @@index([tenant], map: "indx_survey_tenant")
+  @@index([updatedtenant], map: "indx_survey_updatedtenant")
+  @@index([updateduser], map: "indx_survey_updateduser")
 }
 
 model TopicComments {
@@ -227,149 +398,261 @@ model TopicComments {
   updatedchannel  String?
   attachment      String?
   previousid      String?
+
+  @@index([topic], map: "indx_surveyresponse_question")
 }
 
 model TopicInstance {
-  id              String    @id(map: "surveysection_pkey") @default(uuid())
-  topic           String    @unique
-  createdtenant   String
-  updatedtenant   String?
-  createduser     String
-  updateduser     String?
-  isactive        Boolean   @default(false)
-  createddatetime DateTime  @db.Timestamp(6)
-  updateddatetime DateTime? @db.Timestamp(6)
-  createdchannel  String?
-  updatedchannel  String?
-  previousid      String?
+  id                                         String    @id(map: "surveysection_pkey") @default(uuid())
+  topic                                      String
+  createdtenant                              String
+  updatedtenant                              String?
+  createduser                                String
+  updateduser                                String?
+  isactive                                   Boolean   @default(false)
+  createddatetime                            DateTime  @db.Timestamp(6)
+  updateddatetime                            DateTime? @db.Timestamp(6)
+  createdchannel                             String?
+  updatedchannel                             String?
+  previousid                                 String?
+  Tenant_TopicInstance_createdtenantToTenant Tenant    @relation("TopicInstance_createdtenantToTenant", fields: [createdtenant], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_surveysection_createdtenant_tenant")
+  User_TopicInstance_createduserToUser       User      @relation("TopicInstance_createduserToUser", fields: [createduser], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_surveysection_createduser_user")
+  Topic                                      Topic     @relation(fields: [topic], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_surveysection_survey_survey")
+  Tenant_TopicInstance_updatedtenantToTenant Tenant?   @relation("TopicInstance_updatedtenantToTenant", fields: [updatedtenant], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_surveysection_updatedtenant_tenant")
+  User_TopicInstance_updateduserToUser       User?     @relation("TopicInstance_updateduserToUser", fields: [updateduser], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_surveysection_updateduser_user")
 
-  topic_ Topic @relation(name: "topicinstances_topic_", fields: [topic], references: [id])
+  @@index([createdtenant], map: "indx_surveysection_createdtenant")
+  @@index([createduser], map: "indx_surveysection_createduser")
+  @@index([topic], map: "indx_surveysection_survey")
+  @@index([updatedtenant], map: "indx_surveysection_updatedtenant")
+  @@index([updateduser], map: "indx_surveysection_updateduser")
 }
 
 model TopicUsers {
-  id              String    @id(map: "surveyuserl_pkey") @default(uuid())
-  topic           String
-  userid          String
-  notes           String?
-  createdtenant   String?
-  updatedtenant   String?
-  createduser     String?
-  updateduser     String?
-  isactive        Boolean   @default(false)
-  createddatetime DateTime  @db.Timestamp(6)
-  updateddatetime DateTime? @db.Timestamp(6)
-  previousid      String?
+  id                                      String    @id(map: "surveyuserl_pkey") @default(uuid())
+  topic                                   String
+  userid                                  String
+  notes                                   String?
+  createdtenant                           String?
+  updatedtenant                           String?
+  createduser                             String?
+  updateduser                             String?
+  isactive                                Boolean   @default(false)
+  createddatetime                         DateTime  @db.Timestamp(6)
+  updateddatetime                         DateTime? @db.Timestamp(6)
+  previousid                              String?
+  Tenant_TopicUsers_updatedtenantToTenant Tenant?   @relation("TopicUsers_updatedtenantToTenant", fields: [updatedtenant], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_surveyuser_updatedtenant_tenant")
+  User_TopicUsers_updateduserToUser       User?     @relation("TopicUsers_updateduserToUser", fields: [updateduser], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_surveyuser_updateduser_user")
+  Tenant_TopicUsers_createdtenantToTenant Tenant?   @relation("TopicUsers_createdtenantToTenant", fields: [createdtenant], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_surveyuserl_createdtenant_tenant")
+  User_TopicUsers_createduserToUser       User?     @relation("TopicUsers_createduserToUser", fields: [createduser], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_surveyuserl_createduser_user")
+  User_TopicUsers_useridToUser            User      @relation("TopicUsers_useridToUser", fields: [userid], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_surveyuserl_user_user")
+  Topic                                   Topic     @relation(fields: [topic], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fl_surveyuserl_survey")
 
-  topic_ Topic @relation(name: "topicusers_topic_", fields: [topic], references: [id])
+  @@index([userid], map: "indx_surveyuserl")
+  @@index([createdtenant], map: "indx_surveyuserl_createdtenant")
+  @@index([createduser], map: "indx_surveyuserl_createduser")
+  @@index([topic], map: "indx_surveyuserl_survey")
+  @@index([updatedtenant], map: "indx_surveyuserl_updatedtenant")
+  @@index([updateduser], map: "indx_surveyuserl_updateduser")
 }
 
 model User {
-  id              String    @id(map: "user_pkey") @default(uuid())
-  tenant          String
-  login           String    @unique(map: "uq_login")
-  password        String
-  usertype        String
-  createdtenant   String
-  updatedtenant   String?
-  createduser     String
-  updateduser     String?
-  isactive        Boolean   @default(false)
-  createddatetime DateTime? @db.Timestamp(6)
-  updateddatetime DateTime? @db.Timestamp(6)
-  notes           String?
-  iconpic         String?
-  previousid      String?
+  id                                                          String                 @id(map: "user_pkey") @default(uuid())
+  tenant                                                      String
+  login                                                       String                 @unique(map: "uq_login")
+  password                                                    String
+  usertype                                                    String
+  createdtenant                                               String
+  updatedtenant                                               String?
+  createduser                                                 String
+  updateduser                                                 String?
+  isactive                                                    Boolean                @default(false)
+  createddatetime                                             DateTime?              @db.Timestamp(6)
+  updateddatetime                                             DateTime?              @db.Timestamp(6)
+  notes                                                       String?
+  iconpic                                                     String?
+  previousid                                                  String?
+  NotificationTemplate_NotificationTemplate_createduserToUser NotificationTemplate[] @relation("NotificationTemplate_createduserToUser")
+  NotificationTemplate_NotificationTemplate_updateduserToUser NotificationTemplate[] @relation("NotificationTemplate_updateduserToUser")
+  RefClass_RefClass_createduserToUser                         RefClass[]             @relation("RefClass_createduserToUser")
+  RefClass_RefClass_updateduserToUser                         RefClass[]             @relation("RefClass_updateduserToUser")
+  RefDatum_RefDatum_createduserToUser                         RefDatum[]             @relation("RefDatum_createduserToUser")
+  RefDatum_RefDatum_updateduserToUser                         RefDatum[]             @relation("RefDatum_updateduserToUser")
+  Role_Role_createduserToUser                                 Role[]                 @relation("Role_createduserToUser")
+  Role_Role_updateduserToUser                                 Role[]                 @relation("Role_updateduserToUser")
+  TenantAddress_TenantAddress_createduserToUser               TenantAddress[]        @relation("TenantAddress_createduserToUser")
+  TenantAddress_TenantAddress_updateduserToUser               TenantAddress[]        @relation("TenantAddress_updateduserToUser")
+  TenantContact_TenantContact_createduserToUser               TenantContact[]        @relation("TenantContact_createduserToUser")
+  TenantContact_TenantContact_updateduserToUser               TenantContact[]        @relation("TenantContact_updateduserToUser")
+  Topic_Topic_createduserToUser                               Topic[]                @relation("Topic_createduserToUser")
+  Topic_Topic_updateduserToUser                               Topic[]                @relation("Topic_updateduserToUser")
+  TopicInstance_TopicInstance_createduserToUser               TopicInstance[]        @relation("TopicInstance_createduserToUser")
+  TopicInstance_TopicInstance_updateduserToUser               TopicInstance[]        @relation("TopicInstance_updateduserToUser")
+  TopicUsers_TopicUsers_updateduserToUser                     TopicUsers[]           @relation("TopicUsers_updateduserToUser")
+  TopicUsers_TopicUsers_createduserToUser                     TopicUsers[]           @relation("TopicUsers_createduserToUser")
+  TopicUsers_TopicUsers_useridToUser                          TopicUsers[]           @relation("TopicUsers_useridToUser")
+  Tenant_User_createdtenantToTenant                           Tenant                 @relation("User_createdtenantToTenant", fields: [createdtenant], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_user_createdtenant_tenant")
+  User_User_createduserToUser                                 User                   @relation("User_createduserToUser", fields: [createduser], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_user_createduser_user")
+  other_User_User_createduserToUser                           User[]                 @relation("User_createduserToUser")
+  RefDatum_User_usertypeToRefDatum                            RefDatum               @relation("User_usertypeToRefDatum", fields: [usertype], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_user_type_refdata")
+  Tenant_User_updatedtenantToTenant                           Tenant?                @relation("User_updatedtenantToTenant", fields: [updatedtenant], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_user_updatedtenant_tenant")
+  User_User_updateduserToUser                                 User?                  @relation("User_updateduserToUser", fields: [updateduser], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_user_updateduser_user")
+  other_User_User_updateduserToUser                           User[]                 @relation("User_updateduserToUser")
+  Tenant_User_tenantToTenant                                  Tenant                 @relation("User_tenantToTenant", fields: [tenant], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_users_tenant_tenant")
+  UserContact_UserContact_createduserToUser                   UserContact[]          @relation("UserContact_createduserToUser")
+  UserContact_UserContact_updateduserToUser                   UserContact[]          @relation("UserContact_updateduserToUser")
+  UserContact_UserContact_userToUser                          UserContact?           @relation("UserContact_userToUser")
+  UserProfile_UserProfile_createduserToUser                   UserProfile[]          @relation("UserProfile_createduserToUser")
+  UserProfile_UserProfile_updateduserToUser                   UserProfile[]          @relation("UserProfile_updateduserToUser")
+  UserProfile_UserProfile_userToUser                          UserProfile?           @relation("UserProfile_userToUser")
+  UserRoleMap_UserRoleMap_createduserToUser                   UserRoleMap[]          @relation("UserRoleMap_createduserToUser")
+  UserRoleMap_UserRoleMap_updateduserToUser                   UserRoleMap[]          @relation("UserRoleMap_updateduserToUser")
+  UserRoleMap_UserRoleMap_userToUser                          UserRoleMap?           @relation("UserRoleMap_userToUser")
 
-  usertype_          RefDatum      @relation(name: "users_usertype_", fields: [usertype], references: [id])
-  tenant_            Tenant        @relation(name: "users_tenant_", fields: [tenant], references: [id])
-  usercontacts_user_ UserContact[] @relation(name: "usercontacts_user_")
-  userprofiles_user_ UserProfile?  @relation(name: "userprofiles_user_")
-  userrolemaps_user_ UserRoleMap?  @relation(name: "userrolemaps_user_")
+  @@unique([login, tenant, usertype], map: "indx_unq_user_login")
+  @@index([createdtenant], map: "indx_user_createdtenant")
+  @@index([createduser], map: "indx_user_createduser")
+  @@index([previousid], map: "indx_user_previousid")
+  @@index([usertype], map: "indx_user_type")
+  @@index([updatedtenant], map: "indx_user_updatedtenant")
+  @@index([updateduser], map: "indx_user_updateduser")
 }
 
 model UserContact {
-  id               String    @id(map: "usercontact_pkey") @default(uuid())
-  user             String
-  usercontacttype  String
-  value            String
-  isverified       Boolean?  @default(false)
-  verifiedby       String?
-  verifieddatetime DateTime? @db.Timestamp(6)
-  isprimarycontact Boolean?  @default(false)
-  createdtenant    String
-  updatedtenant    String?
-  createduser      String
-  updateduser      String?
-  isactive         Boolean   @default(false)
-  createddatetime  DateTime? @db.Timestamp(6)
-  updateddatetime  DateTime? @db.Timestamp(6)
-  notes            String?
-  iconpic          String?
-  previousid       String?
+  id                                             String    @id(map: "usercontact_pkey") @default(uuid())
+  user                                           String    @unique()
+  usercontacttype                                String
+  value                                          String
+  isverified                                     Boolean?  @default(false)
+  verifiedby                                     String?
+  verifieddatetime                               DateTime? @db.Timestamp(6)
+  isprimarycontact                               Boolean?  @default(false)
+  createdtenant                                  String
+  updatedtenant                                  String?
+  createduser                                    String
+  updateduser                                    String?
+  isactive                                       Boolean   @default(false)
+  createddatetime                                DateTime? @db.Timestamp(6)
+  updateddatetime                                DateTime? @db.Timestamp(6)
+  notes                                          String?
+  iconpic                                        String?
+  previousid                                     String?
+  Tenant_UserContact_createdtenantToTenant       Tenant    @relation("UserContact_createdtenantToTenant", fields: [createdtenant], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_usercontact_createdtenant_tenant")
+  User_UserContact_createduserToUser             User      @relation("UserContact_createduserToUser", fields: [createduser], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_usercontact_createduser_user")
+  UserContact_RefDatum_usercontacttypeToRefDatum RefDatum  @relation(name: "UserContact_usercontacttypeToRefDatum", fields: [usercontacttype], references: [id], map: "fk_usercontact_type_refdata")
+  Tenant_UserContact_updatedtenantToTenant       Tenant?   @relation("UserContact_updatedtenantToTenant", fields: [updatedtenant], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_usercontact_updatedtenant_tenant")
+  User_UserContact_updateduserToUser             User?     @relation("UserContact_updateduserToUser", fields: [updateduser], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_usercontact_updateduser_user")
+  User_UserContact_userToUser                    User      @relation("UserContact_userToUser", fields: [user], references: [id], map: "fk_usercontact_user_user")
 
-  user_ User @relation(name: "usercontacts_user_", fields: [user], references: [id])
+  @@index([createdtenant], map: "indx_usercontact_createdtenant")
+  @@index([createduser], map: "indx_usercontact_createduser")
+  @@index([iconpic], map: "indx_usercontact_iconpic")
+  @@index([previousid], map: "indx_usercontact_previousid")
+  @@index([usercontacttype], map: "indx_usercontact_type")
+  @@index([updatedtenant], map: "indx_usercontact_updatedtenant")
+  @@index([updateduser], map: "indx_usercontact_updateduser")
+  @@index([user], map: "indx_usercontact_user")
 }
 
 model UserProfile {
-  id                String    @id(map: "userprofile_pkey") @default(uuid())
-  user              String    @unique()
-  firstname         String?
-  middlename        String?
-  lastname          String?
-  age               Int?
-  gratuity          Decimal?  @db.Decimal(10, 2)
-  providentfund     Decimal?  @db.Decimal(10, 2)
-  incometax         Decimal?  @db.Decimal(10, 2)
-  ageasondate       Int?
-  gender            String?
-  source            String?
-  bloodgroup        String?
-  dateofbirth       DateTime? @db.Date
-  maritialstatus    String?
-  salutation        String?
-  caste             String?
-  noofchildren      String?
-  disabilitystatus  String?
-  disabilitydetails String?
-  lifestatus        String?
-  shoelengthinmm    Float?
-  shoewidthinmm     Float?
-  religion          String?
-  avgmonthlyincome  Int?
-  occupation        String?
-  category          String?
-  mothertongue      String?
-  createdtenant     String?
-  updatedtenant     String?
-  createduser       String?
-  updateduser       String?
-  isactive          Boolean   @default(false)
-  createddatetime   DateTime? @db.Timestamp(6)
-  updateddatetime   DateTime? @db.Timestamp(6)
-  createdchannel    String?
-  updatedchannel    String?
-  notes             String?
-  iconpic           String?
-  previousid        String
+  id                                              String    @id(map: "userprofile_pkey") @default(uuid())
+  user                                            String    @unique()
+  firstname                                       String?
+  middlename                                      String?
+  lastname                                        String?
+  age                                             Int?
+  gratuity                                        Decimal?  @db.Decimal(10, 2)
+  providentfund                                   Decimal?  @db.Decimal(10, 2)
+  incometax                                       Decimal?  @db.Decimal(10, 2)
+  ageasondate                                     Int?
+  gender                                          String?
+  source                                          String?
+  bloodgroup                                      String?
+  dateofbirth                                     DateTime? @db.Date
+  maritialstatus                                  String?
+  salutation                                      String?
+  caste                                           String?
+  noofchildren                                    String?
+  disabilitystatus                                String?
+  disabilitydetails                               String?
+  lifestatus                                      String?
+  shoelengthinmm                                  Float?
+  shoewidthinmm                                   Float?
+  religion                                        String?
+  avgmonthlyincome                                Int?
+  occupation                                      String?
+  category                                        String?
+  mothertongue                                    String?
+  createdtenant                                   String?
+  updatedtenant                                   String?
+  createduser                                     String?
+  updateduser                                     String?
+  isactive                                        Boolean   @default(false)
+  createddatetime                                 DateTime? @db.Timestamp(6)
+  updateddatetime                                 DateTime? @db.Timestamp(6)
+  createdchannel                                  String?
+  updatedchannel                                  String?
+  notes                                           String?
+  iconpic                                         String?
+  previousid                                      String?
+  RefDatum_UserProfile_casteToRefDatum            RefDatum? @relation("UserProfile_casteToRefDatum", fields: [caste], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_userprofile_caste_refdata")
+  RefDatum_UserProfile_categoryToRefDatum         RefDatum? @relation("UserProfile_categoryToRefDatum", fields: [category], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_userprofile_category_refdata")
+  Tenant_UserProfile_createdtenantToTenant        Tenant?   @relation("UserProfile_createdtenantToTenant", fields: [createdtenant], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_userprofile_createdtenant_tenant")
+  User_UserProfile_createduserToUser              User?     @relation("UserProfile_createduserToUser", fields: [createduser], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_userprofile_createduser_user")
+  RefDatum_UserProfile_disabilitystatusToRefDatum RefDatum? @relation("UserProfile_disabilitystatusToRefDatum", fields: [disabilitystatus], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_userprofile_disabilitystatus_refdata")
+  RefDatum_UserProfile_genderToRefDatum           RefDatum? @relation("UserProfile_genderToRefDatum", fields: [gender], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_userprofile_gender_refdata")
+  RefDatum_UserProfile_maritialstatusToRefDatum   RefDatum? @relation("UserProfile_maritialstatusToRefDatum", fields: [maritialstatus], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_userprofile_maritialstatus_refdata")
+  RefDatum_UserProfile_religionToRefDatum         RefDatum? @relation("UserProfile_religionToRefDatum", fields: [religion], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_userprofile_religion_refdata")
+  RefDatum_UserProfile_salutationToRefDatum       RefDatum? @relation("UserProfile_salutationToRefDatum", fields: [salutation], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_userprofile_salutation_refdata")
+  RefDatum_UserProfile_sourceToRefDatum           RefDatum? @relation("UserProfile_sourceToRefDatum", fields: [source], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_userprofile_source_refdata")
+  Tenant_UserProfile_updatedtenantToTenant        Tenant?   @relation("UserProfile_updatedtenantToTenant", fields: [updatedtenant], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_userprofile_updatedtenant_tenant")
+  User_UserProfile_updateduserToUser              User?     @relation("UserProfile_updateduserToUser", fields: [updateduser], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_userprofile_updateduser_user")
+  User_UserProfile_userToUser                     User      @relation("UserProfile_userToUser", fields: [user], references: [id], map: "fk_userprofile_user_user")
 
-  user_ User @relation(name: "userprofiles_user_", fields: [user], references: [id])
+  @@index([caste], map: "indx_userprofile_caste")
+  @@index([category], map: "indx_userprofile_category")
+  @@index([createdtenant], map: "indx_userprofile_createdtenant")
+  @@index([createduser], map: "indx_userprofile_createduser")
+  @@index([disabilitystatus], map: "indx_userprofile_disabilitystatus")
+  @@index([gender], map: "indx_userprofile_gender")
+  @@index([iconpic], map: "indx_userprofile_iconpic")
+  @@index([maritialstatus], map: "indx_userprofile_maritialstatus")
+  @@index([previousid], map: "indx_userprofile_previousid")
+  @@index([religion], map: "indx_userprofile_religion")
+  @@index([salutation], map: "indx_userprofile_salutation")
+  @@index([source], map: "indx_userprofile_source")
+  @@index([updatedtenant], map: "indx_userprofile_updatedtenant")
+  @@index([updateduser], map: "indx_userprofile_updateduser")
+  @@index([user], map: "indx_userprofile_user")
 }
 
 model UserRoleMap {
-  id              String    @id(map: "userrolemap_pkey") @default(uuid())
-  user            String    @unique()
-  role            String
-  createdtenant   String?
-  updatedtenant   String?
-  createduser     String
-  updateduser     String?
-  isactive        Boolean   @default(false)
-  createddatetime DateTime  @db.Timestamp(6)
-  updateddatetime DateTime? @db.Timestamp(6)
-  notes           String?
-  iconpic         String?
-  previousid      String?
+  id                                       String    @id(map: "userrolemap_pkey") @default(uuid())
+  user                                     String    @unique()
+  role                                     String
+  createdtenant                            String?
+  updatedtenant                            String?
+  createduser                              String
+  updateduser                              String?
+  isactive                                 Boolean   @default(false)
+  createddatetime                          DateTime  @db.Timestamp(6)
+  updateddatetime                          DateTime? @db.Timestamp(6)
+  notes                                    String?
+  iconpic                                  String?
+  previousid                               String?
+  Tenant_UserRoleMap_createdtenantToTenant Tenant?   @relation("UserRoleMap_createdtenantToTenant", fields: [createdtenant], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_userrolemap_createdtenant_tenant")
+  User_UserRoleMap_createduserToUser       User      @relation("UserRoleMap_createduserToUser", fields: [createduser], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_userrolemap_createduser_user")
+  Role                                     Role      @relation(fields: [role], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_userrolemap_role_role")
+  Tenant_UserRoleMap_updatedtenantToTenant Tenant?   @relation("UserRoleMap_updatedtenantToTenant", fields: [updatedtenant], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_userrolemap_updatedtenant_tenant")
+  User_UserRoleMap_updateduserToUser       User?     @relation("UserRoleMap_updateduserToUser", fields: [updateduser], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_userrolemap_updateduser_user")
+  User_UserRoleMap_userToUser              User      @relation("UserRoleMap_userToUser", fields: [user], references: [id], map: "fk_userrolemap_user_user")
 
-  user_ User @relation(name: "userrolemaps_user_", fields: [user], references: [id])
-  role_ Role @relation(name: "userrolemaps_role_", fields: [role], references: [id])
+  @@index([createdtenant], map: "indx_userrolemap_createdtenant")
+  @@index([createduser], map: "indx_userrolemap_createduser")
+  @@index([iconpic], map: "indx_userrolemap_iconpic")
+  @@index([previousid], map: "indx_userrolemap_previousid")
+  @@index([role], map: "indx_userrolemap_role")
+  @@index([updatedtenant], map: "indx_userrolemap_updatedtenant")
+  @@index([updateduser], map: "indx_userrolemap_updateduser")
+  @@index([user], map: "indx_userrolemap_user")
 }

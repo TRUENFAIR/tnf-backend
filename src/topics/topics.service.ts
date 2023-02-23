@@ -2,16 +2,14 @@ import { Injectable } from "@nestjs/common";
 import { PrismaClient } from "@prisma/client";
 import { UserInfoDto } from "src/@common/dtos/userInfo.dto";
 import { CreateTopicDto } from "./dtos/createTopic.dto";
-import { ListTopicsQueryDto, ListTopicsResponseDto } from "./dtos/listTopics.dto";
+import { ListTopicsResponseDto } from "./dtos/listTopics.dto";
 import { UpdateTopicBodyDto } from "./dtos/updateTopic.dto";
 
 @Injectable()
 export class TopicsService {
-  constructor(private readonly prismaClint: PrismaClient) {}
+  constructor(private readonly prismaClint: PrismaClient) { }
 
-  async listTopics(query: ListTopicsQueryDto, userInfo: UserInfoDto): Promise<ListTopicsResponseDto> {
-    const { type } = query;
-
+  async listTopics(userInfo: UserInfoDto): Promise<ListTopicsResponseDto> {
     const assignedTopics = await this.prismaClint.topic.findMany({
       select: {
         id: true,
@@ -19,7 +17,7 @@ export class TopicsService {
       },
       where: {
         isactive: true,
-        topicusers_topic_: {
+        TopicUsers: {
           every: {
             userid: userInfo.userId
           }
@@ -49,31 +47,43 @@ export class TopicsService {
     const Topic = await this.prismaClint.topic.create({
       data: {
         name: name,
-        topictype_: {
+        startdate: new Date(),
+        createddatetime: new Date(),
+        isactive: true,
+        Tenant_Topic_tenantToTenant: {
+          connect: {
+            id: userInformation.admin.tenantId
+          }
+        },
+        Tenant_Topic_createdtenantToTenant: {
+          connect: {
+            id: userInformation.admin.tenantId
+          }
+        },
+        User_Topic_createduserToUser: {
+          connect: {
+            id: userInformation.userId
+          }
+        },
+        RefDatum_Topic_topictypeToRefDatum: {
           connect: {
             refdatacode: "TOPIC_TYPE.FORUM"
           }
         },
-        language_: {
+        RefDatum_Topic_languageToRefDatum: {
           connect: {
             refdatacode: "LANGUAGE.ENGISH"
           }
         },
-        startdate: new Date(),
-        createddatetime: new Date(),
-        tenant: userInformation.admin.tenantId,
-        createdtenant: userInformation.admin.tenantId,
-        createduser: userInformation.userId,
-        isactive: true,
-        topicinstances_topic_: {
+        TopicInstance: {
           create: {
             createddatetime: new Date(),
             createduser: userInformation.userId,
             createdtenant: userInformation.admin.tenantId,
-            isactive: true
+            isactive: true,
           }
         },
-        topicusers_topic_: {
+        TopicUsers: {
           createMany: {
             data: userIdList.map((userId) => ({
               userid: userId,
@@ -94,7 +104,6 @@ export class TopicsService {
 
   async updateTopic(id: string, body: UpdateTopicBodyDto, userInformation: UserInfoDto) {
     const { name, removedUsers = [], newlyAddedUsers = [] } = body;
-    console.log(removedUsers);
     await this.prismaClint.topic.update({
       where: {
         id: id
@@ -102,9 +111,17 @@ export class TopicsService {
       data: {
         name: name,
         updateddatetime: new Date(),
-        updateduser: userInformation.userId,
-        updatedtenant: userInformation.admin.tenantId,
-        topicusers_topic_: {
+        User_Topic_updateduserToUser: {
+          connect: {
+            id: userInformation.userId
+          }
+        },
+        Tenant_Topic_updatedtenantToTenant: {
+          connect: {
+            id: userInformation.admin.tenantId
+          }
+        },
+        TopicUsers: {
           createMany: {
             data: newlyAddedUsers.map((userId) => ({
               userid: userId,
@@ -112,7 +129,7 @@ export class TopicsService {
               createduser: userInformation.userId,
               isactive: true,
               createddatetime: new Date()
-            }))
+            })),
           },
           updateMany: removedUsers.map((userId) => ({
             where: {
@@ -125,7 +142,7 @@ export class TopicsService {
               isactive: false
             }
           }))
-        }
+        },
       }
     });
     return "Record Updated Successfully";

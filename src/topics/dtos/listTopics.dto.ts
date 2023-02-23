@@ -20,11 +20,6 @@ export class ListTopicsResponseDto {
   @ApiProperty({ type: [Item] })
   createdTopics: Item[];
 }
-export class ListTopicsQueryDto {
-  @IsString()
-  @ApiProperty({ type: String })
-  type: "all-topics" | "my-topics";
-}
 
 export class ListUserResponseDto {
   @IsString()
@@ -37,5 +32,5 @@ export class ListUserResponseDto {
 
   @IsString()
   @ApiProperty({ type: String })
-  tenetId: string;
+  tenantId: string;
 }
