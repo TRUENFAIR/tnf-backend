@@ -2,7 +2,7 @@ import { Controller, UseGuards } from "@nestjs/common";
 import { Get } from "@nestjs/common/decorators";
 import { ApiResponse, ApiTags } from "@nestjs/swagger";
 import { JwtAuthGuard } from "src/@common/guards/jwt-auth.guard";
-import { ListUserResponseDto } from "src/create-topics/dtos/listTopics.dto";
+import { ListUserResponseDto } from "src/topics/dtos/listTopics.dto";
 import { UsersService } from "./users.service";
 
 @ApiTags("Users")
