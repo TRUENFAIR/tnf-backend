@@ -63,4 +63,16 @@ export class UsersService {
 
     return null;
   }
+
+  async listOfUsers(): Promise<any> {
+    const user = await this.prisma.user.findMany({
+      select: {
+        id: true,
+        tenant: true
+      },
+      where: {
+        isactive: true
+      }
+    });
+  }
 }

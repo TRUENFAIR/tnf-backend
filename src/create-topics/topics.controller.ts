@@ -5,7 +5,7 @@ import { User } from "src/@common/decorators/user.decorator";
 import { UserInfoDto } from "src/@common/dtos/userInfo.dto";
 import { JwtAuthGuard } from "src/@common/guards/jwt-auth.guard";
 import { CreateTopicDto } from "./dtos/createTopic.dto";
-import { ListTopicsQueryDto } from "./dtos/listTopics.dto";
+import { ListTopicsQueryDto, ListTopicsResponseDto, ListUserResponseDto } from "./dtos/listTopics.dto";
 import { UpdateTopicBodyDto } from "./dtos/updateTopic.dto";
 import { TopicsService } from "./topics.service";
 @ApiTags("Topics")
@@ -14,8 +14,8 @@ import { TopicsService } from "./topics.service";
 export class TopicsController {
   constructor(private readonly TopicService: TopicsService) {}
 
-  @ApiResponse({ status: 200, type: String })
-  @Get("list-topics")
+  @ApiResponse({ status: 200, type: ListTopicsResponseDto })
+  @Get("/list-topics")
   async listTopics(@Query() query: ListTopicsQueryDto, @User() userInfo: UserInfoDto) {
     return this.TopicService.listTopics(query, userInfo);
   }

@@ -9,45 +9,39 @@ import { UpdateTopicBodyDto } from "./dtos/updateTopic.dto";
 export class TopicsService {
   constructor(private readonly prismaClint: PrismaClient) {}
 
-  async listTopics(query: ListTopicsQueryDto, userInfo: UserInfoDto): Promise<ListTopicsResponseDto[]> {
+  async listTopics(query: ListTopicsQueryDto, userInfo: UserInfoDto): Promise<ListTopicsResponseDto> {
     const { type } = query;
 
-    if (type === "all-topics") {
-      return this.prismaClint.topic.findMany({
-        select: {
-          id: true,
-          name: true
-        },
-        where: {
-          isactive: true,
-          OR: [
-            {
-              createduser: userInfo.userId
-            },
-            {
-              topicusers_topic_: {
-                every: {
-                  userid: userInfo.userId
-                }
-              }
-            }
-          ]
+    const assignedTopics = await this.prismaClint.topic.findMany({
+      select: {
+        id: true,
+        name: true
+      },
+      where: {
+        isactive: true,
+        topicusers_topic_: {
+          every: {
+            userid: userInfo.userId
+          }
         }
-      });
-    } else if (type === "my-topics") {
-      return this.prismaClint.topic.findMany({
-        select: {
-          id: true,
-          name: true
-        },
-        where: {
-          isactive: true,
-          createduser: userInfo.userId
-        }
-      });
-    }
+      }
+    });
 
-    return [];
+    const createdTopics = await this.prismaClint.topic.findMany({
+      select: {
+        id: true,
+        name: true
+      },
+      where: {
+        isactive: true,
+        createduser: userInfo.userId
+      }
+    });
+
+    return {
+      assignedTopics,
+      createdTopics
+    };
   }
 
   async createTopic(body: CreateTopicDto, userInformation: UserInfoDto): Promise<string> {
