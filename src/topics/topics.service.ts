@@ -4,6 +4,7 @@ import { UserInfoDto } from "src/@common/dtos/userInfo.dto";
 import concatUsernameAndTenant from "src/@common/utils/concatUsernameAndTenant";
 import { CreateTopicDto } from "./dtos/createTopic.dto";
 import { ListTopicsResponseDto } from "./dtos/listTopics.dto";
+import { TopicDetailsResponseDto } from "./dtos/topicDetails.dto";
 import { UpdateTopicBodyDto } from "./dtos/updateTopic.dto";
 
 @Injectable()
@@ -67,7 +68,7 @@ export class TopicsService {
     };
   }
 
-  async topicDetails(id: string): Promise<any> {
+  async topicDetails(id: string): Promise<TopicDetailsResponseDto> {
     const topic = await this.prismaClint.topic.findUnique({
       where: {
         id: id,
