@@ -23,7 +23,7 @@ export class UsersController {
     return this.userService.createUser(body, userInfo);
   }
 
-  @ApiResponse({ status: 200, type: [ProfileResponseDto] })
+  @ApiResponse({ status: 200, type: ProfileResponseDto })
   @Get("/profile")
   async profile(@User() userInfo: UserInfoDto): Promise<ProfileResponseDto> {
     return this.userService.profile(userInfo);
