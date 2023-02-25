@@ -1,6 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { PrismaClient } from "@prisma/client";
 import { UserInfoDto } from "src/@common/dtos/userInfo.dto";
+import concatUsernameAndTenant from "src/@common/utils/concatUsernameAndTenant";
 import { PasswordService } from "src/auth/password.service";
 import { ListUserResponseDto } from "src/topics/dtos/listTopics.dto";
 import { CreateUserBodyDto, CreateUserResponseDto } from "./dto/createUser.dto";
@@ -215,15 +216,16 @@ export class UsersService {
     });
 
     return user.map((user) => {
-      const firstName = user.UserProfile_UserProfile_userToUser?.firstname ?? user.login;
-      const lastName = user.UserProfile_UserProfile_userToUser?.lastname ?? "";
-      const middleName = user.UserProfile_UserProfile_userToUser?.middlename ?? "";
-      const tenantName = user.Tenant_User_tenantToTenant?.name ?? "";
-      const username = `${firstName} ${middleName} ${lastName}`.trim().replace("  ", " ");
+      const nameWithTenant = concatUsernameAndTenant({
+        firstName: user.UserProfile_UserProfile_userToUser?.firstname ?? user.login,
+        lastName: user.UserProfile_UserProfile_userToUser.lastname,
+        middleName: user.UserProfile_UserProfile_userToUser.middlename,
+        tenantName: user.Tenant_User_tenantToTenant.name,
+      });
 
       return ({
         id: user.id,
-        name: `${username} (${tenantName})`,
+        name: nameWithTenant,
         tenantId: user.tenant
       });
     })
