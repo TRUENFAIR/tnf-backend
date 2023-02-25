@@ -1,6 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { PrismaClient } from "@prisma/client";
 import { UserInfoDto } from "src/@common/dtos/userInfo.dto";
+import concatUsernameAndTenant from "src/@common/utils/concatUsernameAndTenant";
 import { CreateTopicDto } from "./dtos/createTopic.dto";
 import { ListTopicsResponseDto } from "./dtos/listTopics.dto";
 import { UpdateTopicBodyDto } from "./dtos/updateTopic.dto";
@@ -63,6 +64,55 @@ export class TopicsService {
     return {
       assignedTopics,
       createdTopics
+    };
+  }
+
+  async topicDetails(id: string): Promise<any> {
+    const topic = await this.prismaClint.topic.findUnique({
+      where: {
+        id: id,
+      },
+      select: {
+        name: true,
+        TopicUsers: {
+          select: {
+            id: true,
+            User_TopicUsers_useridToUser: {
+              select: {
+                Tenant_User_tenantToTenant: {
+                  select: {
+                    name: true
+                  }
+                },
+                UserProfile_UserProfile_userToUser: {
+                  select: {
+                    firstname: true,
+                    middlename: true,
+                    lastname: true,
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    });
+
+    return {
+      name: topic.name,
+      usersList: topic.TopicUsers.map((user) => {
+        const nameWithTenant = concatUsernameAndTenant({
+          firstName: user.User_TopicUsers_useridToUser.UserProfile_UserProfile_userToUser.firstname,
+          lastName: user.User_TopicUsers_useridToUser.UserProfile_UserProfile_userToUser?.lastname,
+          middleName: user.User_TopicUsers_useridToUser.UserProfile_UserProfile_userToUser?.middlename,
+          tenantName: user.User_TopicUsers_useridToUser.Tenant_User_tenantToTenant?.name,
+        });
+
+        return {
+          id: user.id,
+          name: nameWithTenant,
+        }
+      })
     };
   }
 

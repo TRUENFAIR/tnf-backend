@@ -6,6 +6,7 @@ import { UserInfoDto } from "src/@common/dtos/userInfo.dto";
 import { JwtAuthGuard } from "src/@common/guards/jwt-auth.guard";
 import { CreateTopicDto } from "./dtos/createTopic.dto";
 import { ListTopicsResponseDto } from "./dtos/listTopics.dto";
+import { TopicDetailsResponseDto } from "./dtos/topicDetails.dto";
 import { UpdateTopicBodyDto } from "./dtos/updateTopic.dto";
 import { TopicsService } from "./topics.service";
 @ApiTags("Topics")
@@ -18,6 +19,12 @@ export class TopicsController {
   @Get("/list-topics")
   async listTopics(@User() userInfo: UserInfoDto): Promise<ListTopicsResponseDto> {
     return this.TopicService.listTopics(userInfo);
+  }
+
+  @ApiResponse({ status: 200, type: TopicDetailsResponseDto })
+  @Get("/topic-details/:id")
+  async topicDetails(@Param("id") id: string): Promise<TopicDetailsResponseDto> {
+    return this.TopicService.topicDetails(id);
   }
 
   @ApiResponse({ status: 201, type: String })
