@@ -182,9 +182,15 @@ export class UsersService {
         id: true,
         login: true,
         tenant: true,
+        Tenant_User_tenantToTenant: {
+          select: {
+            name: true,
+          }
+        },
         UserProfile_UserProfile_userToUser: {
           select: {
             firstname: true,
+            middlename: true,
             lastname: true
           }
         }
@@ -197,10 +203,18 @@ export class UsersService {
       }
     });
 
-    return user.map((user) => ({
-      id: user.id,
-      name: `${user.UserProfile_UserProfile_userToUser?.firstname ?? user.login} ${user.UserProfile_UserProfile_userToUser?.lastname ?? ""}`.trim(),
-      tenantId: user.tenant
-    }))
+    return user.map((user) => {
+      const firstName = user.UserProfile_UserProfile_userToUser?.firstname ?? user.login;
+      const lastName = user.UserProfile_UserProfile_userToUser?.lastname ?? "";
+      const middleName = user.UserProfile_UserProfile_userToUser?.middlename ?? "";
+      const tenantName = user.Tenant_User_tenantToTenant?.name ?? "";
+      const username = `${firstName} ${middleName} ${lastName}`.trim().replace("  ", " ");
+
+      return ({
+        id: user.id,
+        name: `${username} (${tenantName})`,
+        tenantId: user.tenant
+      });
+    })
   }
 }
