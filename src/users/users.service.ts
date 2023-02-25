@@ -5,6 +5,7 @@ import { PasswordService } from "src/auth/password.service";
 import { ListUserResponseDto } from "src/topics/dtos/listTopics.dto";
 import { CreateUserBodyDto, CreateUserResponseDto } from "./dto/createUser.dto";
 import { FindOneResponseDto } from "./dto/findOneResponse.dto";
+import { ProfileResponseDto } from "./dto/profile.dto";
 
 @Injectable()
 export class UsersService {
@@ -176,6 +177,13 @@ export class UsersService {
     };
   }
 
+  async profile(userInfo: UserInfoDto): Promise<ProfileResponseDto> {
+    return {
+      name: userInfo.fullname,
+      role: userInfo.role.name
+    }
+  }
+
   async usersListFormForum(userInfo: UserInfoDto): Promise<ListUserResponseDto[]> {
     const user = await this.prisma.user.findMany({
       select: {
@@ -200,6 +208,9 @@ export class UsersService {
         NOT: {
           id: userInfo.userId
         }
+      },
+      orderBy: {
+        tenant: "asc"
       }
     });
 
