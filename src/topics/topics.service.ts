@@ -18,12 +18,34 @@ export class TopicsService {
       where: {
         isactive: true,
         TopicUsers: {
-          every: {
+          some: {
             userid: userInfo.userId
           }
+        },
+        RefDatum_Topic_topictypeToRefDatum: {
+          refdatacode: "TOPIC_TYPE.FORUM"
         }
+      },
+      orderBy: {
+        createddatetime: "asc"
       }
     });
+
+    let usersList: string[] = [userInfo.userId];
+    if (userInfo.role.name === "Admin") {
+      const users = await this.prismaClint.user.findMany({
+        select: { id: true },
+        where: {
+          NOT: {
+            id: userInfo.userId
+          },
+          isactive: true,
+          tenant: userInfo.admin.tenantId,
+        }
+      });
+      usersList = [...users.map(user => user.id)];
+    }
+
 
     const createdTopics = await this.prismaClint.topic.findMany({
       select: {
@@ -32,7 +54,9 @@ export class TopicsService {
       },
       where: {
         isactive: true,
-        createduser: userInfo.userId
+        createduser: {
+          in: usersList
+        }
       }
     });
 
